@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { NotFoundError } from './erro';
+import { NotFoundError } from './error';
 
 export async function fetchLastModifiedDate(packageName : string) : Promise<Date> {
     const response = await fetch(`https://registry.npmjs.org/${packageName}`);
