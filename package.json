@@ -12,10 +12,12 @@
   "author": "Yoshiya Suzuki",
   "license": "MIT",
   "dependencies": {
-    "fastify": "^4.22.0"
+    "fastify": "^4.22.0",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "@types/node": "^20.5.7",
+    "@types/node-fetch": "^2.6.4",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.2.2"
   }
