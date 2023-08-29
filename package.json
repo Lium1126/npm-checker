@@ -1,0 +1,22 @@
+{
+  "name": "npm-checker",
+  "version": "1.0.0",
+  "description": "Introducing npm-checker, a tool designed to assist users in evaluating the reliability of NPM packages by analyzing factors such as download counts and related metrics. This program aims to empower users to make informed decisions about package installations, considering the package's popularity and safety.",
+  "main": "build/main.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node build/main.js",
+    "dev": "ts-node-dev --respawn src/main.ts"
+  },
+  "author": "Yoshiya Suzuki",
+  "license": "MIT",
+  "dependencies": {
+    "fastify": "^4.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.5.7",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.2.2"
+  }
+}
