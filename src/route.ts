@@ -44,6 +44,5 @@ export function registerRoute(server : FastifyInstance) {
 
         await response.send({ can_use: true, reason: "" });
         return;
-    })
-
+    });
 }
