@@ -34,7 +34,7 @@ describe("main", () => {
         expect(JSON.parse(response.body)).toStrictEqual({ can_use: true, reason: "" });
     });
 
-    test("Fail",async () => {
+    test("For packages that have not been updated for over a year, false is set to can_use and 200 is set to the status code.",async () => {
         modifiedDateSpy.mockImplementationOnce(async () => {
             return new Date('2022-01-01T09:29:29.706Z');
         });
@@ -44,7 +44,7 @@ describe("main", () => {
         expect(JSON.parse(response.body)).toStrictEqual({ can_use: false, reason: "That package hasn't been updated in over a year" });        
     });
 
-    test("Fail because not found", async () => {
+    test("If the package does not exist in the last update date confirmation API, the status code is 404 and message is set.", async () => {
         modifiedDateSpy.mockImplementationOnce(async () => {
             throw new NotFoundError();
         });
@@ -52,5 +52,45 @@ describe("main", () => {
         const response = await server.inject({ method: "POST", url: "/check-package/dummy" });
         expect(response.statusCode).toBe(404);
         expect(JSON.parse(response.body)).toStrictEqual({ message: "Package Not Found" });        
+    });
+
+    test("If the last update date confirmation API outputs an error status, the status code is set to 500 and a message is set.", async () => {
+        modifiedDateSpy.mockImplementationOnce(async () => {
+            throw new Error();
+        });
+
+        const response = await server.inject({ method: "POST", url: "/check-package/dummy" });
+        expect(response.statusCode).toBe(500);
+        expect(JSON.parse(response.body)).toStrictEqual({ message: "Unexpected Error" });        
+    });
+
+    test("For packages with less than 500 downloads, can_use is set to false and status code is set to 200.", async () => {
+        downloadCountSpy.mockImplementationOnce(async () => {
+            return 0;
+        });
+
+        const response = await server.inject({ method: "POST", url: "/check-package/dummy" });
+        expect(response.statusCode).toBe(200);
+        expect(JSON.parse(response.body)).toStrictEqual({ can_use: false, reason: "The package has fewer than 500 installs in the last month" });        
+    });
+
+    test("If the package does not exist in the download counting API, the status code is 404 and message is set", async () => {
+        downloadCountSpy.mockImplementationOnce(async () => {
+            throw new NotFoundError();
+        });
+
+        const response = await server.inject({ method: "POST", url: "/check-package/dummy" });
+        expect(response.statusCode).toBe(404);
+        expect(JSON.parse(response.body)).toStrictEqual({ message: "Package Not Found" });        
+    });
+
+    test("If the download counting API outputs an error status, the status code is set to 500 and a message is set.", async () => {
+        downloadCountSpy.mockImplementationOnce(async () => {
+            throw new Error();
+        });
+
+        const response = await server.inject({ method: "POST", url: "/check-package/dummy" });
+        expect(response.statusCode).toBe(500);
+        expect(JSON.parse(response.body)).toStrictEqual({ message: "Unexpected Error" });        
     });
 });
