@@ -1,8 +1,8 @@
 import fastify from "fastify";
 import { registerRoute } from "../src/route";
-import * as modifiedDate from "../src/modified_date"
+import * as packageInfo from "../src/packageinfo"
 import * as downloadCount from "../src/download_count"
-import { NotFoundError } from "../src/error";
+import { NotFoundError, UnsupportedRepositoryTypeError } from "../src/error";
 
 describe("main", () => {
     const server = fastify();
@@ -12,11 +12,11 @@ describe("main", () => {
         // テストコードなのでListenは不要
     });
 
-    let modifiedDateSpy : jest.SpyInstance;
+    let packageInfoSpy : jest.SpyInstance;
     let downloadCountSpy : jest.SpyInstance;
     beforeEach(() => {
-        modifiedDateSpy = jest.spyOn(modifiedDate, "fetchLastModifiedDate").mockImplementation(async () => {
-            return new Date();
+        packageInfoSpy = jest.spyOn(packageInfo, "fetchPackageInfo").mockImplementation(async () => {
+            return { modified: new Date(), owner: "skyway", repository: "skyway-js-sdk" };
         });
         downloadCountSpy = jest.spyOn(downloadCount, "fetchDownloadCount").mockImplementation(async () => {
             return 100000000;
@@ -24,7 +24,7 @@ describe("main", () => {
     });
 
     afterEach(() => {
-        modifiedDateSpy.mockRestore();
+        packageInfoSpy.mockRestore();
         downloadCountSpy.mockRestore();
     })
 
@@ -35,17 +35,17 @@ describe("main", () => {
     });
 
     test("For packages that have not been updated for over a year, false is set to can_use and 200 is set to the status code.",async () => {
-        modifiedDateSpy.mockImplementationOnce(async () => {
-            return new Date('2022-01-01T09:29:29.706Z');
+        packageInfoSpy.mockImplementationOnce(async () => {
+            return { modified: new Date('2022-01-01T09:29:29.706Z'), owner: "skyway", repository: "skyway-js-sdk" };
         });
 
         const response = await server.inject({ method: "POST", url: "/check-package/dummy" });
         expect(response.statusCode).toBe(200);
-        expect(JSON.parse(response.body)).toStrictEqual({ can_use: false, reason: "That package hasn't been updated in over a year" });        
+        expect(JSON.parse(response.body)).toStrictEqual({ can_use: false, reason: "That package hasn't been updated in over 1 year" });        
     });
 
     test("If the package does not exist in the last update date confirmation API, the status code is 404 and message is set.", async () => {
-        modifiedDateSpy.mockImplementationOnce(async () => {
+        packageInfoSpy.mockImplementationOnce(async () => {
             throw new NotFoundError();
         });
 
@@ -54,8 +54,18 @@ describe("main", () => {
         expect(JSON.parse(response.body)).toStrictEqual({ message: "Package Not Found" });        
     });
 
+    test("A message is set if the host service is not GitHub.", async () => {
+        packageInfoSpy.mockImplementationOnce(async () => {
+            throw new UnsupportedRepositoryTypeError();
+        });
+
+        const response = await server.inject({ method: "POST", url: "/check-package/dummy" });
+        expect(response.statusCode).toBe(500);
+        expect(JSON.parse(response.body)).toStrictEqual({ message: "Unsupported Repository Type" });        
+    });
+
     test("If the last update date confirmation API outputs an error status, the status code is set to 500 and a message is set.", async () => {
-        modifiedDateSpy.mockImplementationOnce(async () => {
+        packageInfoSpy.mockImplementationOnce(async () => {
             throw new Error();
         });
 

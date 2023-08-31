@@ -1,7 +1,4 @@
 import fastify from 'fastify'
-import { fetchLastModifiedDate } from './modified_date'
-import { fetchDownloadCount } from './download_count'
-import { NotFoundError } from './error'
 import { registerRoute } from './route'
 
 const server = fastify({ disableRequestLogging: false });
