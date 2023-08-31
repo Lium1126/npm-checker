@@ -12,10 +12,17 @@ jobs:
         with: 
           node-version: '20'
           cache: npm
-      - name: 'install packages'
+      - name: install packages
         run: npm install
-      - name: 'test'
+      - name: test
         run: npm run test
-      - name: 'build'
+      - name: build
         run: npm run build
-        
+      - name: GCP auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
+      - name: setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+      - name: deploy
+        run: gcloud run deploy npm-checker --source . --region 'asia-northeast1'
