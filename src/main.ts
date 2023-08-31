@@ -5,7 +5,7 @@ const server = fastify({ disableRequestLogging: false });
 
 registerRoute(server);
 
-server.listen({ port: 8080, host: "127.0.0.1" }, (err, address) => {
+server.listen({ port: Number(process.env.PORT ?? "8080"), host: "0.0.0.0" }, (err, address) => {
     if (err) {
         console.error(err)
         process.exit(1)
