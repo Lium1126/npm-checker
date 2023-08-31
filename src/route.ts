@@ -59,6 +59,10 @@ export function registerRoute(server : FastifyInstance) {
         await response.send({ can_use: true, reason: "" });
         return;
     });
+
+    server.get('/health',async (request, response) => {
+        return "OK";
+    });
 }
 
 function displaySummary(packageName : string, packageInfo : PackageInfo, downloadCount : number, contributors : Object) {
