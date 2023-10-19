@@ -102,18 +102,21 @@ npm Checkerは、npmパッケージをインストールする前に、複数の
 ## 使用法
 
 ### サーバイドの実行
-```bash=
+
+```bash
 $ npm install
 $ npm run start
 ```
 
 ### 開発環境での実行
+
 ```bash
 $ npm install
 $ npm run dev
 ```
 
 ### ビルドのみ実行
+
 ```bash
 $ npm install
 $ npm run build
